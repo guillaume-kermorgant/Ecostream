@@ -37,6 +37,8 @@ docker push registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine
 
 ## Run locally
 
+See Readmes from ecostream
+
 ### EcoStream Manager
 
 - pull the repo:
@@ -80,6 +82,22 @@ npm start
 
 See Readmes in ecostream-visualizer and ecostream-manager repos
 
-## Run on minikube
+## Run on Minikube
 
-Use the helm Chart present in the ArgoCD repo
+This is not working for now because of failure in ingress management when running minikube on my mac (M3).
+
+Use the helm Chart present in the ecostream-gitops repo under ./resources
+
+```
+helm install ecostream ./
+```
+
+Be aware that the ingress might not work as expected with minikube, see https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/.
+
+Easiest way is to expose the visualizer app manually:
+
+```
+minikube service ecostream-visualizer-service --url -n ecostream
+```
+... and open displayed URL (something like http://127.0.0.1:55364)
+but then it is not going to work because the visualizer won't be able to access the manager's ingress.
