@@ -53,7 +53,7 @@ npm ci
 npm start
 # dev env var can be found in .env file
 # test request:
-curl http://manager:manager-password@localhost:6850/api/v1/aqi\?city\=paris
+curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
 ```
 
 ### EcoStream Visualizer
@@ -64,22 +64,15 @@ curl http://manager:manager-password@localhost:6850/api/v1/aqi\?city\=paris
 git clone git@gitlab.com:gkermo/ecostream-visualizer.git
 ```
 
-- run the proxy backend:
-
-```
-cd ./ecostream-visualizer
-cd ./proxy-backend
-npm ci
-npm start
-```
-
 - run the visualizer:
 
 ```
 cd ./ecostream-visualizer
 cd ./visualizer
 npm ci
-export REACT_ACT_PROXY_BACKEND_URL="http://localhost:3000"
+export REACT_APP_ECOSTREAM_MANAGER_URL="http://host.docker.internal:9000"
+export REACT_ACT_ECOSTREAM_MANAGER_USERNAME="manager"
+export REACT_ACT_ECOSTREAM_MANAGER_PASSWORD="manager-password"
 npm start
 ```
 
@@ -89,4 +82,4 @@ See Readmes in ecostream-visualizer and ecostream-manager repos
 
 ## Run on minikube
 
-TODO
+Use the helm Chart present in the ArgoCD repo
