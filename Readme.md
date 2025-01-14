@@ -78,7 +78,29 @@ export REACT_ACT_ECOSTREAM_MANAGER_PASSWORD="manager-password"
 npm start
 ```
 
-## Run locally with Docker
+## Run locally with Terraform and Docker
+
+You must first export your GitLab credentials, and then run terraform commands:
+
+```
+export GITLAB_USERNAME=
+export GITLAB_TOKEN=
+# generate local_run.tfvars with gitlab credentials
+envsubst < template.tfvars > local_run.tfvars
+terraform init
+terraform apply -var-file="local_run.tfvars"
+```
+
+- Check that the EcoStream Manager is working:
+
+```
+curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
+```
+
+- Open http://localhost:3000 in your browser
+
+
+## Run locally with Docker (not Terraform)
 
 See Readmes in ecostream-visualizer and ecostream-manager repos
 
