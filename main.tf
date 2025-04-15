@@ -1,9 +1,22 @@
 terraform {
+	
+  backend "local" {
+    path = "terraform.tfstate"
+  }
+
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
       version = "~> 3.0.1"
     }
+  }
+}
+
+provider "docker" {
+  registry_auth {
+    address  = "registry.gitlab.com"
+    username = var.gitlab_username
+    password = var.gitlab_token
   }
 }
 
@@ -34,12 +47,28 @@ variable "ecostream_manager_password" {
   default     = "manager-password"
 }
 
-provider "docker" {
-  registry_auth {
-    address  = "registry.gitlab.com"
-    username = var.gitlab_username
-    password = var.gitlab_token
-  }
+variable "ecostream_database_host" {
+  type        = string
+  description = "EcoStream database host"
+  default     = "localhost"
+}
+
+variable "ecostream_database_port" {
+  type        = number
+  description = "EcoStream database port"
+  default     = 5432
+}
+
+variable "ecostream_database_user" {
+  type        = string
+  description = "EcoStream database user"
+  default     = "ecostream"
+}
+
+variable "ecostream_database_password" {
+  type        = string
+  description = "EcoStream database password"
+  default     = "ecostream-password"
 }
 
 resource "docker_image" "ecostream_manager" {
@@ -52,6 +81,27 @@ resource "docker_image" "ecostream_visualizer" {
   keep_locally = false
 }
 
+resource "docker_image" "ecostream_database" {
+  name         = "registry.gitlab.com/gkermo/ecostream-database:latest-amd64"
+  keep_locally = false
+}
+
+resource "docker_container" "ecostream_database_container" {
+  image = docker_image.ecostream_database.name
+  name  = "ecostream_database"
+
+  ports {
+    internal = 5432
+    external = var.ecostream_database_port
+  }
+
+  env = [
+    "POSTGRES_USER=${var.ecostream_database_user}",
+    "POSTGRES_PASSWORD=${var.ecostream_database_password}"
+  ]
+
+  restart = "no"
+}
 resource "docker_container" "ecostream_manager_container" {
   image = docker_image.ecostream_manager.name
   name  = "ecostream_manager"
@@ -63,7 +113,11 @@ resource "docker_container" "ecostream_manager_container" {
 
   env = [
     "ECOSTREAM_MANAGER_USERNAME=${var.ecostream_manager_username}",
-    "ECOSTREAM_MANAGER_PASSWORD=${var.ecostream_manager_password}"
+    "ECOSTREAM_MANAGER_PASSWORD=${var.ecostream_manager_password}",
+    "ECOSTREAM_DB_HOST=${var.ecostream_database_host}",
+    "ECOSTREAM_DB_PORT=${var.ecostream_database_port}",
+    "ECOSTREAM_DB_USER=${var.ecostream_database_user}",
+    "ECOSTREAM_DB_PASSWORD=${var.ecostream_database_password}"
   ]
 
   restart = "no"
@@ -86,3 +140,4 @@ resource "docker_container" "ecostream_visualizer_container" {
 
   restart = "no"
 }
+

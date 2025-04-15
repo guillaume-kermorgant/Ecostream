@@ -1,8 +1,38 @@
 # EcoStream
 
+This app shows air quality data in French cities.
+Data comes from The World Health Organization (WHO) https://www.who.int/data/gho/data/themes/air-pollution/who-air-quality-database/2022.
+
+The "air quality score" represented here is custom, we wanted to use the Air Quality Index (AQI) at first, but when we calculated it from the values of the WHO data, it was not representative of the actual air quality, because the WHO data provides an average value of gas concentration in the air over the year whereas the air quality index should be calculated based on gas concentrations measured during daily peak periods.
+
+The custom air quality index calculated in this project is supposed to be more representative of the actual air quality in the listed cities over the years.
+
+## AWS access from terminal
+
+- Open https://d-806718da8e.awsapps.com/start
+
+- Export AWS environment variables:
+
+```
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
+export AWS_SESSION_TOKEN=""
+```
+
+- Configure SSO:
+
+```
+aws configure sso
+export AWS_REGION=eu-west-3
+aws ec2 describe-instances
+```
+
 ## Base images
 
 Base images are stored in this project's container registry.
+Whenever we create a new project that needs access to this container registry, we need to add that new project to the allowlist of this project from Gitlab UI Settings -> CI/CD -> Job token permissions
+
+
 They have been pulled from docker hub and then built and pushed manually with the following commands (amd64 and arm64):
 
 - Node:
@@ -34,6 +64,22 @@ docker tag nginx:1.27.3-alpine registry.gitlab.com/gkermo/ecostream/base_images/
 docker push registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-amd64
 docker push registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-arm64
 ```
+
+- PostgreSQL:
+
+```
+docker pull --platform=linux/amd64 postgres:17.4
+docker save postgres:17.4 -o postgres:17.4-amd64.tar
+docker pull --platform=linux/arm64 postgres:17.4
+docker save postgres:17.4 -o postgres:17.4-arm64.tar
+docker load -i postgres:17.4-amd64.tar
+docker tag postgres:17.4 registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-amd64
+docker load -i postgres:17.4-arm64.tar
+docker tag postgres:17.4 registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
+docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-amd64
+docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
+```
+
 
 ## Run locally
 
@@ -99,12 +145,21 @@ curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
 
 - Open http://localhost:3000 in your browser
 
+- TODO: deploy data
+
+- destroy ecostream instance:
+
+```
+terraform destroy -var-file="local_run.tfvars"
+```
 
 ## Run locally with Docker (not Terraform)
 
-See Readmes in ecostream-visualizer and ecostream-manager repos
+See Readmes in ecostream-visualizer, ecostream-manager and ecostream-database repos
 
 ## Run on Minikube
+
+/!\ Deprecated: the database is deployed by the helm chart so you will not see any data
 
 This is not working for now because of failure in ingress management when running minikube on my mac (M3).
 

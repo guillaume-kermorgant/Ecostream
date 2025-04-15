@@ -3,6 +3,7 @@ ecostream-manager
 ecostream-visualizer
 ecostream-cicd
 ecostream-gitops
+ecostream-environment-setup
 local_run.tfvars
 terraform.tfstate
 .terraform.lock.hcl
