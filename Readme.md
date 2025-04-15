@@ -9,7 +9,7 @@ The custom air quality index calculated in this project is supposed to be more r
 
 ## AWS access from terminal
 
-- Open https://d-806718da8e.awsapps.com/start
+- Open AWS start URL
 
 - Export AWS environment variables:
 
@@ -81,48 +81,9 @@ docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
 ```
 
 
-## Run locally
+## Run locally for development
 
-See Readmes from ecostream
-
-### EcoStream Manager
-
-- pull the repo:
-
-```
-git clone git@gitlab.com:gkermo/ecostream-manager.git
-```
-
-- run the manager:
-
-```
-cd ./ecostream-manager
-npm ci
-npm start
-# dev env var can be found in .env file
-# test request:
-curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
-```
-
-### EcoStream Visualizer
-
-- pull the repo:
-
-```
-git clone git@gitlab.com:gkermo/ecostream-visualizer.git
-```
-
-- run the visualizer:
-
-```
-cd ./ecostream-visualizer
-cd ./visualizer
-npm ci
-export REACT_APP_ECOSTREAM_MANAGER_URL="http://host.docker.internal:9000"
-export REACT_ACT_ECOSTREAM_MANAGER_USERNAME="manager"
-export REACT_ACT_ECOSTREAM_MANAGER_PASSWORD="manager-password"
-npm start
-```
+See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database repos.
 
 ## Run locally with Terraform and Docker
 
