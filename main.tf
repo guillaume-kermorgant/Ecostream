@@ -1,5 +1,5 @@
 terraform {
-	
+
   backend "local" {
     path = "terraform.tfstate"
   }
@@ -35,6 +35,12 @@ variable "ecostream_manager_external_port" {
   default     = 9000
 }
 
+variable "ecostream_manager_host" {
+  type        = string
+  description = "EcoStream manager host"
+  default     = "localhost"
+}
+
 variable "ecostream_manager_username" {
   type        = string
   description = "EcoStream manager username"
@@ -50,7 +56,7 @@ variable "ecostream_manager_password" {
 variable "ecostream_database_host" {
   type        = string
   description = "EcoStream database host"
-  default     = "localhost"
+  default     = "ecostream_database"
 }
 
 variable "ecostream_database_port" {
@@ -71,25 +77,38 @@ variable "ecostream_database_password" {
   default     = "ecostream-password"
 }
 
+resource "docker_image" "ecostream_database" {
+  name         = "registry.gitlab.com/gkermo/ecostream-database:latest-amd64"
+  keep_locally = false
+  pull_triggers = [
+    timestamp()
+  ]
+}
+
 resource "docker_image" "ecostream_manager" {
   name         = "registry.gitlab.com/gkermo/ecostream-manager:latest-amd64"
   keep_locally = false
+  pull_triggers = [
+    timestamp()
+  ]
 }
 
 resource "docker_image" "ecostream_visualizer" {
   name         = "registry.gitlab.com/gkermo/ecostream-visualizer:latest-amd64"
   keep_locally = false
+  pull_triggers = [
+    timestamp()
+  ]
 }
-
-resource "docker_image" "ecostream_database" {
-  name         = "registry.gitlab.com/gkermo/ecostream-database:latest-amd64"
-  keep_locally = false
+resource "docker_network" "ecostream" {
+  name = "ecostream_network"
 }
-
 resource "docker_container" "ecostream_database_container" {
   image = docker_image.ecostream_database.name
-  name  = "ecostream_database"
-
+  # we use the value of the host variable here so it can be referenced by ecostream-manager container
+  # this is required to be able to connect to the database as ecostream-manager and the DB and part
+  # of the same docker network
+  name  = var.ecostream_database_host
   ports {
     internal = 5432
     external = var.ecostream_database_port
@@ -99,13 +118,15 @@ resource "docker_container" "ecostream_database_container" {
     "POSTGRES_USER=${var.ecostream_database_user}",
     "POSTGRES_PASSWORD=${var.ecostream_database_password}"
   ]
+  networks_advanced {
+    name = docker_network.ecostream.name
+  }
 
   restart = "no"
 }
 resource "docker_container" "ecostream_manager_container" {
   image = docker_image.ecostream_manager.name
   name  = "ecostream_manager"
-
   ports {
     internal = 9000
     external = var.ecostream_manager_external_port
@@ -115,14 +136,15 @@ resource "docker_container" "ecostream_manager_container" {
     "ECOSTREAM_MANAGER_USERNAME=${var.ecostream_manager_username}",
     "ECOSTREAM_MANAGER_PASSWORD=${var.ecostream_manager_password}",
     "ECOSTREAM_DB_HOST=${var.ecostream_database_host}",
-    "ECOSTREAM_DB_PORT=${var.ecostream_database_port}",
     "ECOSTREAM_DB_USER=${var.ecostream_database_user}",
     "ECOSTREAM_DB_PASSWORD=${var.ecostream_database_password}"
   ]
+  networks_advanced {
+    name = docker_network.ecostream.name
+  }
 
   restart = "no"
 }
-
 resource "docker_container" "ecostream_visualizer_container" {
   image = docker_image.ecostream_visualizer.name
   name  = "ecostream_visualizer"
@@ -135,7 +157,7 @@ resource "docker_container" "ecostream_visualizer_container" {
   env = [
     "REACT_APP_ECOSTREAM_MANAGER_USERNAME=${var.ecostream_manager_username}",
     "REACT_APP_ECOSTREAM_MANAGER_PASSWORD=${var.ecostream_manager_password}",
-    "REACT_APP_ECOSTREAM_MANAGER_URL=http://localhost:${var.ecostream_manager_external_port}"
+    "REACT_APP_ECOSTREAM_MANAGER_URL=http://${var.ecostream_manager_host}:${var.ecostream_manager_external_port}"
   ]
 
   restart = "no"

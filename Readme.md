@@ -87,11 +87,17 @@ See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database 
 
 ## Run locally with Terraform and Docker
 
+You can deploy EcoStream locally with the Terraform script from this repo.
+
 You must first export your GitLab credentials, and then run terraform commands:
 
 ```
 export GITLAB_USERNAME=
 export GITLAB_TOKEN=
+# pull the latest docker images (updates local images)
+docker pull registry.gitlab.com/gkermo/ecostream-manager:latest-amd64
+docker pull registry.gitlab.com/gkermo/ecostream-visualizer:latest-amd64
+registry.gitlab.com/gkermo/ecostream-database:latest-amd64
 # generate local_run.tfvars with gitlab credentials
 envsubst < template.tfvars > local_run.tfvars
 terraform init
@@ -106,7 +112,21 @@ curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
 
 - Open http://localhost:3000 in your browser
 
-- TODO: deploy data
+You should see the EcoStream app but there should not be any data
+
+- add some data using the script from ecostream-database repo:
+
+```
+# navigate to ecostream-database repo
+cd ecostream-database/data
+# export ecostream manager connection information and execute the script to populate the DB
+export ECOSTREAM_MANAGER_URL=http://localhost:9000
+export ECOSTREAM_MANAGER_USERNAME=manager
+export ECOSTREAM_MANAGER_PASSWORD=manager-password
+./populate_ecostream_db.sh
+```
+
+- reload the EcoStream app in your browser, you should see some data now!
 
 - destroy ecostream instance:
 
@@ -120,7 +140,7 @@ See Readmes in ecostream-visualizer, ecostream-manager and ecostream-database re
 
 ## Run on Minikube
 
-/!\ Deprecated: the database is deployed by the helm chart so you will not see any data
+/!\ Deprecated: the database is not deployed by the helm chart so you will not see any data
 
 This is not working for now because of failure in ingress management when running minikube on my mac (M3).
 
