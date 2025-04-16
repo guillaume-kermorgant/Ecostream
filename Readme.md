@@ -138,15 +138,21 @@ terraform destroy -var-file="local_run.tfvars"
 
 See Readmes in ecostream-visualizer, ecostream-manager and ecostream-database repos
 
-## Run on Minikube
-
-/!\ Deprecated: the database is not deployed by the helm chart so you will not see any data
+## Run on Minikube (not working fine)
 
 This is not working for now because of failure in ingress management when running minikube on my mac (M3).
+I could have tried to run it on a Linux VM (for instance) but I did not want to spend more time on that.
 
-Use the helm Chart present in the ecostream-gitops repo under ./resources
+- start minikube:
 
 ```
+minikube start
+```
+
+- Use the helm Chart present in the ecostream-gitops repo under ./helm-chart
+
+```
+cd ecostream-gitops/helm-chart
 helm install ecostream ./
 ```
 
