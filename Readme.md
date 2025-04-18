@@ -28,7 +28,7 @@ See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database 
 
 You can deploy EcoStream locally with the Terraform script from this repo.
 
-You must first export your GitLab credentials, and then run terraform commands:
+You must first export your GitLab credentials, and then run tofu/terraform commands:
 
 ```
 export GITLAB_USERNAME=
@@ -39,8 +39,8 @@ docker pull registry.gitlab.com/gkermo/ecostream-visualizer:latest-amd64
 registry.gitlab.com/gkermo/ecostream-database:latest-amd64
 # generate local_run.tfvars with gitlab credentials
 envsubst < template.tfvars > local_run.tfvars
-terraform init
-terraform apply -var-file="local_run.tfvars"
+tofu init
+tofu apply -var-file="local_run.tfvars"
 ```
 
 - Check that the EcoStream Manager is working:
@@ -70,7 +70,7 @@ export ECOSTREAM_MANAGER_PASSWORD=manager-password
 - destroy ecostream instance:
 
 ```
-terraform destroy -var-file="local_run.tfvars"
+tofu destroy -var-file="local_run.tfvars"
 ```
 
 ## Run EcoStream on Minikube (not working correctly)
