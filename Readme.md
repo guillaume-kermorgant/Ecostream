@@ -10,31 +10,101 @@ The custom air quality index calculated in this project is supposed to be more r
 ![EcoStream main page](ecostream_main_page.png)
 EcoStream main page showing the air quality scores in the city of Rennes, France over a few years.
 
-## AWS access from terminal
+## Project structure
 
-- Open AWS start URL
+EcoStream services and utility components are separated into multiple repositories:
+- [EcoStream Visualizer](https://gitlab.com/gkermo/ecostream-visualizer): the EcoStream frontend built with React.js
+- [EcoStream Manager](https://gitlab.com/gkermo/ecostream-manager): the EcoStream backend built with Node.js
+- [EcoStream Database](https://gitlab.com/gkermo/ecostream-database): a PostgreSQL database used to store EcoStream data
+- [EcoStream Environment Setup](https://gitlab.com/gkermo/ecostream-environment-setup): a repository containing resources to easily deploy EcoStream on the cloud
+- [EcoStream GitOps](https://gitlab.com/gkermo/ecostream-gitops): ArgoCD resources that allow to deploy EcoStream
 
-- Export AWS environment variables:
+
+## Run EcoStream locally for development
+
+See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database repos.
+
+## Run EcoStream locally with Terraform and Docker
+
+You can deploy EcoStream locally with the Terraform script from this repo.
+
+You must first export your GitLab credentials, and then run terraform commands:
 
 ```
-export AWS_ACCESS_KEY_ID=""
-export AWS_SECRET_ACCESS_KEY=""
-export AWS_SESSION_TOKEN=""
+export GITLAB_USERNAME=
+export GITLAB_TOKEN=
+# pull the latest docker images (updates local images)
+docker pull registry.gitlab.com/gkermo/ecostream-manager:latest-amd64
+docker pull registry.gitlab.com/gkermo/ecostream-visualizer:latest-amd64
+registry.gitlab.com/gkermo/ecostream-database:latest-amd64
+# generate local_run.tfvars with gitlab credentials
+envsubst < template.tfvars > local_run.tfvars
+terraform init
+terraform apply -var-file="local_run.tfvars"
 ```
 
-- Configure SSO:
+- Check that the EcoStream Manager is working:
 
 ```
-aws configure sso
-export AWS_REGION=eu-west-3
-aws ec2 describe-instances
+curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
 ```
+
+- Open http://localhost:3000 in your browser
+
+You should see the EcoStream app but there should not be any data
+
+- add some data using the script from ecostream-database repo:
+
+```
+# navigate to ecostream-database repo
+cd ecostream-database/data
+# export ecostream manager connection information and execute the script to populate the DB
+export ECOSTREAM_MANAGER_URL=http://localhost:9000
+export ECOSTREAM_MANAGER_USERNAME=manager
+export ECOSTREAM_MANAGER_PASSWORD=manager-password
+./populate_ecostream_db.sh
+```
+
+- reload the EcoStream app in your browser, you should see some data now!
+
+- destroy ecostream instance:
+
+```
+terraform destroy -var-file="local_run.tfvars"
+```
+
+## Run EcoStream on Minikube (not working correctly)
+
+This is not working for now because of failure in ingress management when running minikube on my mac (M3).
+I could have tried to run it on a Linux VM (for instance) but I did not want to spend more time on that.
+
+- start minikube:
+
+```
+minikube start
+```
+
+- Use the helm Chart present in the ecostream-gitops repo under ./helm-chart
+
+```
+cd ecostream-gitops/helm-chart
+helm install ecostream ./
+```
+
+Be aware that the ingress might not work as expected with minikube, see https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/.
+
+Easiest way is to expose the visualizer app manually:
+
+```
+minikube service ecostream-visualizer-service --url -n ecostream
+```
+... and open displayed URL (something like http://127.0.0.1:55364)
+but then it is not going to work because the visualizer won't be able to access the manager's ingress.
 
 ## Base images
 
-Base images are stored in this project's container registry.
+Base images used by EcoStream services are stored in this project's container registry.
 Whenever we create a new project that needs access to this container registry, we need to add that new project to the allowlist of this project from Gitlab UI Settings -> CI/CD -> Job token permissions
-
 
 They have been pulled from docker hub and then built and pushed manually with the following commands (amd64 and arm64):
 
@@ -84,87 +154,3 @@ docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
 ```
 
 
-## Run locally for development
-
-See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database repos.
-
-## Run locally with Terraform and Docker
-
-You can deploy EcoStream locally with the Terraform script from this repo.
-
-You must first export your GitLab credentials, and then run terraform commands:
-
-```
-export GITLAB_USERNAME=
-export GITLAB_TOKEN=
-# pull the latest docker images (updates local images)
-docker pull registry.gitlab.com/gkermo/ecostream-manager:latest-amd64
-docker pull registry.gitlab.com/gkermo/ecostream-visualizer:latest-amd64
-registry.gitlab.com/gkermo/ecostream-database:latest-amd64
-# generate local_run.tfvars with gitlab credentials
-envsubst < template.tfvars > local_run.tfvars
-terraform init
-terraform apply -var-file="local_run.tfvars"
-```
-
-- Check that the EcoStream Manager is working:
-
-```
-curl http://manager:manager-password@localhost:9000/api/v1/aqi\?city\=paris
-```
-
-- Open http://localhost:3000 in your browser
-
-You should see the EcoStream app but there should not be any data
-
-- add some data using the script from ecostream-database repo:
-
-```
-# navigate to ecostream-database repo
-cd ecostream-database/data
-# export ecostream manager connection information and execute the script to populate the DB
-export ECOSTREAM_MANAGER_URL=http://localhost:9000
-export ECOSTREAM_MANAGER_USERNAME=manager
-export ECOSTREAM_MANAGER_PASSWORD=manager-password
-./populate_ecostream_db.sh
-```
-
-- reload the EcoStream app in your browser, you should see some data now!
-
-- destroy ecostream instance:
-
-```
-terraform destroy -var-file="local_run.tfvars"
-```
-
-## Run locally with Docker (not Terraform)
-
-See Readmes in ecostream-visualizer, ecostream-manager and ecostream-database repos
-
-## Run on Minikube (not working fine)
-
-This is not working for now because of failure in ingress management when running minikube on my mac (M3).
-I could have tried to run it on a Linux VM (for instance) but I did not want to spend more time on that.
-
-- start minikube:
-
-```
-minikube start
-```
-
-- Use the helm Chart present in the ecostream-gitops repo under ./helm-chart
-
-```
-cd ecostream-gitops/helm-chart
-helm install ecostream ./
-```
-
-Be aware that the ingress might not work as expected with minikube, see https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/.
-
-Easiest way is to expose the visualizer app manually:
-
-```
-minikube service ecostream-visualizer-service --url -n ecostream
-```
-... and open displayed URL (something like http://127.0.0.1:55364)
-but then it is not going to work because the visualizer won't be able to access the manager's ingress.
