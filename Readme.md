@@ -7,7 +7,7 @@ The "air quality score" represented here is custom, we wanted to use the Air Qua
 
 The custom air quality index calculated in this project is supposed to be more representative of the actual air quality in the listed cities over the years.
 
-![EcoStream main page](relative/path/to/image.png)
+![EcoStream main page](ecostream_main_page.png)
 EcoStream main page showing the air quality scores in the city of Rennes, France over a few years.
 
 ## AWS access from terminal
