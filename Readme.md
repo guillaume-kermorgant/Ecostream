@@ -106,62 +106,8 @@ but then it is not going to work because the visualizer won't be able to access 
 Base images used by EcoStream services are stored in this project's container registry.
 Whenever we create a new project that needs access to this container registry, we need to add that new project to the allowlist of this project from Gitlab UI Settings -> CI/CD -> Job token permissions
 
-They have been pulled from docker hub and then built and pushed manually with the following commands (amd64 and arm64):
+The base images have been pulled from Docker Hub and pushed to this project's container registry with the Gitlab CI pipeline configured in .gitlab-ci.yml file in this repo.
 
-- Node:
+For now, only amd64 base images are used as we configure amd64 nodes for our test EKS cluster. We could also pull arm64 images if needed.
 
-```
-docker pull --platform=linux/amd64 node:22.12
-docker save node:22.12 -o node-22.12-amd64.tar
-docker pull --platform=linux/arm64 node:22.12
-docker save node:22.12 -o node-22.12-arm64.tar
-docker load -i node-22.12-amd64.tar
-docker tag node:22.12 registry.gitlab.com/gkermo/ecostream/base_images/node:22.12-amd64
-docker load -i node-22.12-arm64.tar
-docker tag node:22.12 registry.gitlab.com/gkermo/ecostream/base_images/node:22.12-arm64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/node:22.12-amd64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/node:22.12-arm64
-```
-
-- Nginx:
-
-```
-docker pull --platform=linux/amd64 nginx:1.27.3-alpine
-docker save nginx:1.27.3-alpine -o nginx:1.27.3-alpine-amd64.tar
-docker pull --platform=linux/arm64 nginx:1.27.3-alpine
-docker save nginx:1.27.3-alpine -o nginx:1.27.3-alpine-arm64.tar
-docker load -i nginx:1.27.3-alpine-amd64.tar
-docker tag nginx:1.27.3-alpine registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-amd64
-docker load -i nginx:1.27.3-alpine-arm64.tar
-docker tag nginx:1.27.3-alpine registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-arm64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-amd64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/nginx:1.27.3-alpine-arm64
-```
-
-- PostgreSQL:
-
-```
-docker pull --platform=linux/amd64 postgres:17.4
-docker save postgres:17.4 -o postgres:17.4-amd64.tar
-docker pull --platform=linux/arm64 postgres:17.4
-docker save postgres:17.4 -o postgres:17.4-arm64.tar
-docker load -i postgres:17.4-amd64.tar
-docker tag postgres:17.4 registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-amd64
-docker load -i postgres:17.4-arm64.tar
-docker tag postgres:17.4 registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-amd64
-docker push registry.gitlab.com/gkermo/ecostream/base_images/postgres:17.4-arm64
-
-- Open Tofu (used by Gitlab CI):
-
-The OpenTofu image used in this pipeline is stored in gkermo/ecostream gitlab container registry, in order to avoid the existing pull rate limitation from docker hub.
-
-Here is the process to follow in order to pull a gitlab-opentofu image from dockerhub and push it to gkermo/ecostream container registry.
-
-```
-docker pull --platform=linux/amd64 registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine
-docker save registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine -o gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-amd64.tar
-docker load -i gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-amd64.tar
-docker tag registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine registry.gitlab.com/gkermo/ecostream/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-amd64
-docker push registry.gitlab.com/gkermo/ecostream/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-amd64
-```
+In this pipeline, we also pull an opentofu image from gitlab public components registry and push it to this project's container registry so it can be used by our environment setup job.
