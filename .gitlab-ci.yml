@@ -45,6 +45,15 @@ update_postgres_image:
   script:
   - ./scripts/update_base_image.sh
 
+update_kubectl_image:
+  <<: *pull_push_template
+  variables:
+    SRC_IMAGE: bitnami/kubectl:1.32
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/bitnami-kubectl:#.32-$IMAGES_ARCH
+    IMAGE_ARCH: $IMAGES_ARCH
+  script:
+  - ./scripts/update_base_image.sh
+
 update_opentofu_image:
   <<: *pull_push_template
   variables:

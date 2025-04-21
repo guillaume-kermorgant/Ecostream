@@ -110,4 +110,6 @@ The base images have been pulled from Docker Hub and pushed to this project's co
 
 For now, only amd64 base images are used as we configure amd64 nodes for our test EKS cluster. We could also pull arm64 images if needed.
 
-In this pipeline, we also pull an opentofu image from gitlab public components registry and push it to this project's container registry so it can be used by our environment setup job.
+In this pipeline, we also manage two other images:
+- we pull an opentofu image from gitlab public components registry and push it to this project's container registry so it can be used by our environment setup job
+- a bitnami/kubectl image that we use in our configuration job (a K8S job that deploys a few configuration resource e.g. a ConfigMap containing components URLs)
