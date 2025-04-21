@@ -2,7 +2,7 @@
 
 set -e
 
-# this script pulls a docker image for a specific platform and push it to a different registry
+# this script pulls a docker image for a specific platform and pushes it to a different registry
 
 echo "Pulling source image: $SRC_IMAGE for platform $IMAGE_ARCH..."
 docker pull --platform="linux/$IMAGE_ARCH" "$SRC_IMAGE"
