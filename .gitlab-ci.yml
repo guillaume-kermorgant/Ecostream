@@ -1,0 +1,24 @@
+stages:
+- update_base_images
+
+# updates all base images used by EcoStream services
+# only cretae amd64 images for now
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://docker:2375/
+  ARCH: amd64
+  NODE_IMAGE_NAME: registry.gitlab.com/gkermo/ecostream/base_images/node
+  NODE_IMAGE_TAG: 22.12-$ARCH
+
+update_base_images:
+  image: docker:latest
+  stage: update_base_images
+  services:
+  - docker:dind
+  script:
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  - docker buildx create --use
+  - docker buildx inspect --bootstrap
+  - docker buildx build --platform linux/amd64 --pull \ --tag "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG" \ --output "type=docker" \ "docker.io/library/node:22.12"
+  - docker push "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
