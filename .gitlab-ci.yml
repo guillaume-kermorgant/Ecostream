@@ -7,9 +7,9 @@ stages:
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375/
-  ARCH: amd64
-  NODE_IMAGE_NAME: registry.gitlab.com/gkermo/ecostream/base_images/node
-  NODE_IMAGE_TAG: 22.12-$ARCH
+  BASE_IMAGES_REGISTRY: $CI_REGISTRY_IMAGE/base_images
+  NODE_IMAGE_NAME: node
+  NODE_IMAGE_VERSION: 22.12
 
 update_base_images:
   when: manual
@@ -20,5 +20,5 @@ update_base_images:
   script:
   - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   - docker pull node:22.12
-  - docker tag node:22.12 "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
-  - docker push "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
+  - docker tag node:22.12 "$BASE_IMAGES_REGISTRY/$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
+  - docker push "$BASE_IMAGES_REGISTRY/$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
