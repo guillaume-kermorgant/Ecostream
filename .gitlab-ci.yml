@@ -2,14 +2,13 @@ stages:
 - update_base_images
 
 # updates all base images used by EcoStream services
-# only cretae amd64 images for now
 
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375/
   BASE_IMAGES_REGISTRY: $CI_REGISTRY_IMAGE/base_images
   NODE_IMAGE_NAME: node
-  NODE_IMAGE_VERSION: 22.12
+  NODE_IMAGE_TAG: 22.12
 
 update_base_images:
   when: manual
