@@ -12,13 +12,13 @@ variables:
   NODE_IMAGE_TAG: 22.12-$ARCH
 
 update_base_images:
+  when: manual
   image: docker:latest
   stage: update_base_images
   services:
   - docker:dind
   script:
   - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  - docker buildx create --use
-  - docker buildx inspect --bootstrap
-  - docker buildx build --platform linux/amd64 --pull \ --tag "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG" \ --output "type=docker" \ "docker.io/library/node:22.12"
+  - docker pull node:22.12
+  - docker tag node:22.12 "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
   - docker push "$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
