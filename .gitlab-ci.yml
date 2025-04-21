@@ -1,23 +1,55 @@
 stages:
 - update_base_images
 
-# updates all base images used by EcoStream services
-
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375/
   BASE_IMAGES_REGISTRY: $CI_REGISTRY_IMAGE/base_images
-  NODE_IMAGE_NAME: node
-  NODE_IMAGE_TAG: 22.12
+  IMAGES_ARCH: amd64
 
-update_base_images:
+# template job used to pull/push base images
+.pull_and_push_template: &pull_push_template
   when: manual
   image: docker:latest
   stage: update_base_images
   services:
   - docker:dind
-  script:
+  before_script:
   - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  - docker pull node:22.12
-  - docker tag node:22.12 "$BASE_IMAGES_REGISTRY/$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
-  - docker push "$BASE_IMAGES_REGISTRY/$NODE_IMAGE_NAME:$NODE_IMAGE_TAG"
+  - chmod +x scripts/update_base_image.sh
+
+update_node_image:
+  <<: *pull_push_template
+  variables:
+    SRC_IMAGE: node:22.12
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/node:22.12-$IMAGES_ARCH
+    IMAGE_ARCH: $IMAGES_ARCH
+  script:
+  - ./scripts/update_base_image.sh
+
+update_nginx_image:
+  <<: *pull_push_template
+  variables:
+    SRC_IMAGE: nginx:1.27.3-alpine
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/nginx:1.27.3-alpine-$IMAGES_ARCH
+    IMAGE_ARCH: $IMAGES_ARCH
+  script:
+  - ./scripts/update_base_image.sh
+
+update_postgres_image:
+  <<: *pull_push_template
+  variables:
+    SRC_IMAGE: postgres:17.4
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/postgres:17.4-$IMAGES_ARCH
+    IMAGE_ARCH: $IMAGES_ARCH
+  script:
+  - ./scripts/update_base_image.sh
+
+update_opentofu_image:
+  <<: *pull_push_template
+  variables:
+    SRC_IMAGE: registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-$IMAGES_ARCH
+    IMAGE_ARCH: $IMAGES_ARCH
+  script:
+  - ./scripts/update_base_image.sh
