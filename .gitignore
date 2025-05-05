@@ -13,3 +13,4 @@ LICENSE
 terraform-provider-*
 .terraform/
 tuto-eks
+.vscode/**

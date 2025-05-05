@@ -54,11 +54,20 @@ update_kubectl_image:
   script:
   - ./scripts/update_base_image.sh
 
-update_opentofu_image:
+update_ansible_image:
   <<: *pull_push_template
   variables:
-    SRC_IMAGE: registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine
-    DEST_IMAGE: $BASE_IMAGES_REGISTRY/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-$IMAGES_ARCH
+    SRC_IMAGE: alpine/ansible:2.17.0
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/alpine-ansible:2.17.0-$IMAGES_ARCH
     IMAGE_ARCH: $IMAGES_ARCH
   script:
   - ./scripts/update_base_image.sh
+
+# update_opentofu_image:
+#   <<: *pull_push_template
+#   variables:
+#     SRC_IMAGE: registry.gitlab.com/components/opentofu/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine
+#     DEST_IMAGE: $BASE_IMAGES_REGISTRY/gitlab-opentofu:1.1.0-opentofu1.9.0-alpine-$IMAGES_ARCH
+#     IMAGE_ARCH: $IMAGES_ARCH
+#   script:
+#   - ./scripts/update_base_image.sh
