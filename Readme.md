@@ -112,3 +112,5 @@ For now, only amd64 base images are used as we configure amd64 nodes for our tes
 
 In this pipeline, we also manage an other image:
 - a bitnami/kubectl image that we use in our configuration job (a K8S job that deploys a few configuration resource e.g. a ConfigMap containing components URLs)
+- an alpine-ansible image used to run our Ansible playbooks
+- an alpine image which is very basic and embeds a few dependencies used by some of our configuration K8S Jobs
