@@ -18,6 +18,7 @@ EcoStream services and utility components are separated into multiple repositori
 - [EcoStream Database](https://gitlab.com/gkermo/ecostream-database): a PostgreSQL database used to store EcoStream data
 - [EcoStream Environment Setup](https://gitlab.com/gkermo/ecostream-environment-setup): a repository containing resources to easily deploy EcoStream on the cloud
 - [EcoStream GitOps](https://gitlab.com/gkermo/ecostream-gitops): ArgoCD resources that allow to deploy EcoStream
+- [EcoStream CICD](https://gitlab.com/gkermo/ecostream-cicd): CICD resources (e.g. GitOps update script)
 
 
 ## Run EcoStream locally for development
@@ -113,4 +114,5 @@ For now, only amd64 base images are used as we configure amd64 nodes for our tes
 In this pipeline, we also manage an other image:
 - a bitnami/kubectl image that we use in our configuration job (a K8S job that deploys a few configuration resource e.g. a ConfigMap containing components URLs)
 - an alpine-ansible image used to run our Ansible playbooks
+- an ubuntu image used in our CICD pipeline
 - an alpine image which is very basic and embeds a few dependencies used by some of our configuration K8S Jobs
