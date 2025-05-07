@@ -63,17 +63,7 @@ update_ansible_image:
   script:
   - ./base_images/scripts/update_base_image.sh
 
-# image used in our CICD pipeline
-update_ubuntu_image:
-  <<: *pull_push_template
-  variables:
-    SRC_IMAGE: ubuntu:22.04
-    DEST_IMAGE: $BASE_IMAGES_REGISTRY/ubuntu:22.04-$IMAGES_ARCH
-    IMAGE_ARCH: $IMAGES_ARCH
-  script:
-  - ./base_images/scripts/update_base_image.sh
-
-# for the Alpine image, we build our own image using a Dockerfile
+# for the Alpine and Ubuntu images, we build our own images using Dockerfiles
 update_alpine_image:
   <<: *pull_push_template
   variables:
@@ -82,6 +72,16 @@ update_alpine_image:
   script:
   - |
     docker build --build-arg ALPINE_VERSION=$ALPINE_VERSION -t $DEST_IMAGE ./base_images/alpine
+    docker push $DEST_IMAGE
+
+update_ubuntu_image:
+  <<: *pull_push_template
+  variables:
+    UBUNTU_VERSION: 22.04
+    DEST_IMAGE: $BASE_IMAGES_REGISTRY/ubuntu:22.04-$IMAGES_ARCH
+  script:
+  - |
+    docker build --build-arg UBUNTU_VERSION=$UBUNTU_VERSION -t $DEST_IMAGE ./base_images/ubuntu
     docker push $DEST_IMAGE
 
 # update_opentofu_image:
