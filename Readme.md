@@ -1,5 +1,13 @@
 # EcoStream
 
+:warning:
+**This project was originally hosted on GitLab and moved to GitHub when I reached GitLab's free tier limit.**
+**I have left the .gitlab-ci.yml files as is, most of the instructions to deploy the application will not work because they rely on GitLab's services (e.g. container registries)**
+
+**TODO: update all EcoStream repositories to use GitHub actions and some independent container registry instead of GitLab services.**
+
+
+
 This app shows air quality data in French cities.
 Data comes from The World Health Organization (WHO) https://www.who.int/data/gho/data/themes/air-pollution/who-air-quality-database/2022.
 
@@ -25,7 +33,9 @@ EcoStream services and utility components are separated into multiple repositori
 
 See Readmes from ecostream-manager, ecostream-visualizer and ecostream-database repos.
 
-## Run EcoStream locally with Terraform and Docker
+## [Deprecated] Run EcoStream locally with Terraform and Docker
+
+Deprecated: uses GitLab services
 
 You can deploy EcoStream locally with the Terraform script from this repo.
 
@@ -74,10 +84,9 @@ export ECOSTREAM_MANAGER_PASSWORD=manager-password
 tofu destroy -var-file="local_run.tfvars"
 ```
 
-## Run EcoStream on Minikube (not working correctly)
+## Run EcoStream on Minikube (not working correctly on macOS)
 
 This is not working for now because of failure in ingress management when running minikube on my mac (M3).
-I could have tried to run it on a Linux VM (for instance) but I did not want to spend more time on that.
 
 - start minikube:
 
