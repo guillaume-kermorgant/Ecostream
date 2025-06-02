@@ -24,12 +24,12 @@ EcoStream main page showing the air quality scores in the city of Rennes, France
 ## Project structure
 
 EcoStream services and utility components are separated into multiple repositories:
-- [EcoStream Visualizer](https://gitlab.com/gkermo/ecostream-visualizer): the EcoStream frontend built with React.js
-- [EcoStream Manager](https://gitlab.com/gkermo/ecostream-manager): the EcoStream backend built with Node.js
-- [EcoStream Database](https://gitlab.com/gkermo/ecostream-database): a PostgreSQL database used to store EcoStream data
-- [EcoStream Environment Setup](https://gitlab.com/gkermo/ecostream-environment-setup): a repository containing resources to easily deploy EcoStream on the cloud
-- [EcoStream GitOps](https://gitlab.com/gkermo/ecostream-gitops): ArgoCD resources that allow to deploy EcoStream
-- [EcoStream CICD](https://gitlab.com/gkermo/ecostream-cicd): CICD resources (e.g. GitOps update script)
+- [EcoStream Visualizer](https://github.com/guillaume-kermorgant/EcoStream-visualizer): the EcoStream frontend built with React.js
+- [EcoStream Manager](https://github.com/guillaume-kermorgant/EcoStream-manager): the EcoStream backend built with Node.js
+- [EcoStream Database](https://github.com/guillaume-kermorgant/EcoStream-database): a PostgreSQL database used to store EcoStream data
+- [EcoStream Environment Setup](https://github.com/guillaume-kermorgant/EcoStream-environment-setup): a repository containing resources to easily deploy EcoStream on the cloud
+- [EcoStream GitOps](https://github.com/guillaume-kermorgant/EcoStream-gitops): ArgoCD resources that allow to deploy EcoStream
+- [EcoStream CICD](https://github.com/guillaume-kermorgant/EcoStream-CICD): CICD resources (e.g. GitOps update script)
 
 
 ## Run EcoStream locally for development
